@@ -2,7 +2,7 @@ Imports ColorPadCore.Core.Formula
 Imports ColorPadCore.Core.Model
 Imports ColorPadCore.Extend
 
-Module ColorPad
+Module ConsolePad
 
     Sub Main(args As String())
         Console.Title = "ColorPad Console V" + Reflection.Assembly.GetEntryAssembly.GetName.Version.ToString
