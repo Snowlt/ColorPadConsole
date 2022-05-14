@@ -1,6 +1,8 @@
 ﻿'*
 ' == 管理颜色模型的部分 ==
 '*
+Imports System.Text
+
 Namespace Core
 
     Module Basic
@@ -59,18 +61,6 @@ Namespace Core
         ' Functions will return Nothing when failed to parse, format incorrect or range incorrect
         ' 在解析失败，格式错误或范围错误时，函数会返回 Nothing
         '*
-
-        'Public Function ExtractFromString(ByRef color As String) As Integer()
-        '    If String.IsNullOrEmpty(color) Then Return {}
-        '    '处理并分割字符串
-        '    Dim aColor() As String = color.Split(",")
-        '    '转换为整型数组
-        '    Dim cColor(aColor.Length - 1) As Integer
-        '    For i = 0 To aColor.Length - 1
-        '        cColor(i) = FIntValue(aColor(i))
-        '    Next
-        '    Return cColor
-        'End Function
 
         Public Function ExtractFromString(color As String) As Double()
             If String.IsNullOrEmpty(color) Then Return Array.Empty(Of Double)()
@@ -174,6 +164,12 @@ Namespace Core
                 Me.R = r
                 Me.G = g
                 Me.B = b
+            End Sub   
+            
+            Protected Friend Sub New(value As Integer)
+                Me.R = (value >> 16) And 255
+                Me.G = (value >> 8) And 255
+                Me.B = value And 255
             End Sub
 
             Public Overrides Function Equals(obj As Object) As Boolean
@@ -191,7 +187,7 @@ Namespace Core
             End Operator
 
             Public Overrides Function GetHashCode() As Integer
-                Return R << 16 Or G << 8 Or B
+                Return ToInteger()
             End Function
 
             Public Overrides Function ToString() As String
@@ -208,7 +204,11 @@ Namespace Core
             End Function
 
             Public Overridable Function ToHex() As String
-                Return String.Format("{0:X2}{1:X2}{2:X2}", R, G, B)
+                Return ToInteger().ToString("X6")
+            End Function
+            
+            Protected Friend Function ToInteger() As Integer
+                Return R << 16 Or G << 8 Or B
             End Function
 
             ''' <summary>
@@ -242,15 +242,12 @@ Namespace Core
                 If color.Substring(0, 1) = "#" Then color = color.Substring(1)
                 '检查格式
                 If color.Length <> 6 Then Return Nothing
-                Dim r, g, b As Integer
                 Try
-                    r = Integer.Parse(color.Substring(0, 2), Globalization.NumberStyles.HexNumber)
-                    g = Integer.Parse(color.Substring(2, 2), Globalization.NumberStyles.HexNumber)
-                    b = Integer.Parse(color.Substring(4, 2), Globalization.NumberStyles.HexNumber)
+                    Dim v As Integer = Integer.Parse(color, Globalization.NumberStyles.HexNumber)
+                    Return New Rgb(v)
                 Catch ex As Exception
                     Return Nothing
                 End Try
-                Return New Rgb(r, g, b)
             End Function
 
             ''' <summary>
@@ -269,12 +266,15 @@ Namespace Core
                     Return Nothing
                 ElseIf color.Length = 3 Then
                     'CSS样式
-                    color = String.Format("{0}{0}{1}{1}{2}{2}", color(0), color(1), color(2))
-                Else
-                    '小于6位长度的Hex
-                    color = color.PadLeft(6, "0")
+                    color = New StringBuilder().Append(color(0)).Append(color(0)) _
+                        .Append(color(1)).Append(color(1)).Append(color(2)).Append(color(2)).ToString()
                 End If
-                Return FromHex(color)
+                Try
+                    Dim v As Integer = Integer.Parse(color, Globalization.NumberStyles.HexNumber)
+                    Return New Rgb(v)
+                Catch ex As Exception
+                    Return Nothing
+                End Try
             End Function
 
             ''' <summary>

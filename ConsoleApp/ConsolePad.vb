@@ -3,16 +3,20 @@ Imports ColorPadCore.Core.Model
 Imports ColorPadCore.Extend
 
 Module ConsolePad
+    Dim ReadOnly Version As String = Reflection.Assembly.GetEntryAssembly.GetName.Version.ToString
 
     Sub Main(args As String())
-        Console.Title = "ColorPad Console V" + Reflection.Assembly.GetEntryAssembly.GetName.Version.ToString
+        Console.Title = "ColorPad Console V" + Version
+        Console.WriteLine("++++++++++++++++++++++++++++")
         Console.WriteLine()
         Console.WriteLine("    ====================    ")
         Console.WriteLine("      ColorPad Console      ")
         Console.WriteLine("    ====================    ")
         Console.WriteLine()
+        Console.WriteLine(" > Ver " + Version)
         Console.WriteLine("++++++++++++++++++++++++++++")
         Console.WriteLine()
+        Dim defaultColor = Console.ForegroundColor
         While True
             Console.WriteLine("Supported Color Model or Color Space: ")
             Console.WriteLine("    RGB / Hex / HSB / HSV / HSL / ")
@@ -31,18 +35,18 @@ Module ConsolePad
             If func Is Nothing Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Unknown command: " + input)
-                Console.ForegroundColor = ConsoleColor.Gray
+                Console.ForegroundColor = defaultColor
                 Console.WriteLine()
                 Continue While
             End If
             Console.Write("Please input value of color(separated by ',' if necessary): ")
-            Dim brige As ConvertBridge
+            Dim bridge As ConvertBridge
             Try
-                brige = func(Console.ReadLine().Trim())
+                bridge = func(Console.ReadLine().Trim())
             Catch ex As ArgumentNullException
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Inputted value or format is incorrect")
-                Console.ForegroundColor = ConsoleColor.Gray
+                Console.ForegroundColor = defaultColor
                 Console.WriteLine()
                 Continue While
             End Try
@@ -50,39 +54,33 @@ Module ConsolePad
             Console.WriteLine("====================")
             Console.WriteLine(" Color Information: ")
             Console.ForegroundColor = ConsoleColor.DarkYellow
-            Console.WriteLine("    " + brige.Rgb.ToString())
-            Console.WriteLine("    Hex(HTML): #" + brige.ToHex())
-            Console.WriteLine("    HSB(HSV): " + brige.Hsb.ToString(","))
-            Console.WriteLine("    " + brige.Hsl.ToString())
-            Console.WriteLine("    " + brige.Cmyk.ToString())
-            Console.WriteLine("    " + brige.YCrCb.ToString())
-            Console.WriteLine("    " + brige.Lab.ToString())
-            Console.WriteLine("    XYZ: ({0:0.000},{1:0.000},{2:0.000})", brige.Xyz.X, brige.Xyz.Y, brige.Xyz.Z)
-            Console.ForegroundColor = ConsoleColor.Gray
+            Console.WriteLine("    " + bridge.Rgb.ToString())
+            Console.WriteLine("    Hex(HTML): #" + bridge.ToHex())
+            Console.WriteLine("    HSB(HSV): " + bridge.Hsb.ToString(","))
+            Console.WriteLine("    " + bridge.Hsl.ToString())
+            Console.WriteLine("    " + bridge.Cmyk.ToString())
+            Console.WriteLine("    " + bridge.YCrCb.ToString())
+            Console.WriteLine("    " + bridge.Lab.ToString())
+            Console.WriteLine("    XYZ: ({0:0.000},{1:0.000},{2:0.000})", bridge.Xyz.X, bridge.Xyz.Y, bridge.Xyz.Z)
+            Console.ForegroundColor = defaultColor
             Console.WriteLine("--------------------")
             Console.WriteLine(" Color Formula: ")
             'Use lambada to print the results of formula
             Dim lambadaPrint = Sub(hsb) Console.WriteLine("        " + hsb.ToString())
             Console.ForegroundColor = ConsoleColor.DarkYellow
-            Console.WriteLine("    Monochromatic: ")
-            Array.ForEach(GetFormula(brige.Hsb, FormulaType.Monochromatic), lambadaPrint)
-            Console.WriteLine("    Complementary: ")
-            Array.ForEach(GetFormula(brige.Hsb, FormulaType.Complementary), lambadaPrint)
-            Console.WriteLine("    Split Complementary: ")
-            Array.ForEach(GetFormula(brige.Hsb, FormulaType.SplitComplementary), lambadaPrint)
-            Console.WriteLine("    Analogous: ")
-            Array.ForEach(GetFormula(brige.Hsb, FormulaType.Analogous), lambadaPrint)
-            Console.WriteLine("    Tradic: ")
-            Array.ForEach(GetFormula(brige.Hsb, FormulaType.Triadic), lambadaPrint)
-            Console.WriteLine("    Tetradic: ")
-            Array.ForEach(GetFormula(brige.Hsb, FormulaType.Tetradic), lambadaPrint)
-            Console.ForegroundColor = ConsoleColor.Gray
+            For Each type in [Enum].GetValues(GetType(FormulaType))
+                Dim typeName = [Enum].GetName(GetType(FormulaType), type)
+                If type = FormulaType.SplitComplementary then typeName = "Split Complementary"
+                Console.WriteLine($"    {typeName}: ")
+                Array.ForEach(GetFormula(bridge.Hsb, type), lambadaPrint)
+            Next
+            Console.ForegroundColor = defaultColor
             Console.WriteLine("====================")
             Console.WriteLine()
         End While
     End Sub
 
-    Public Function GetConvertBridge(type As String) As Func(Of String, ConvertBridge)
+    Private Function GetConvertBridge(type As String) As Func(Of String, ConvertBridge)
         type = type.ToLower
         Select Case type
             Case "rgb"
@@ -106,5 +104,4 @@ Module ConsolePad
         End Select
         Return Nothing
     End Function
-
 End Module
