@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "ColorPadCore", "ColorPadCore\ColorPadCore.vbproj", "{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ColorPadConsole", "ColorPadConsole\ColorPadConsole.vbproj", "{A310B101-F8EA-487B-A3C2-0BF293E0D953}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A310B101-F8EA-487B-A3C2-0BF293E0D953}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A310B101-F8EA-487B-A3C2-0BF293E0D953}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A310B101-F8EA-487B-A3C2-0BF293E0D953}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A310B101-F8EA-487B-A3C2-0BF293E0D953}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4D955334-EF29-4A84-A982-8D3A12DC4C88}
+	EndGlobalSection
+EndGlobal
