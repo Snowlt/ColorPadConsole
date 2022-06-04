@@ -202,9 +202,9 @@ Namespace Core
             Public Overridable Function CompareWith(r As Integer, g As Integer, b As Integer) As Boolean
                 Return _r = r AndAlso _g = g AndAlso _b = b
             End Function
-
-            Public Overridable Function ToHex() As String
-                Return ToInteger().ToString("X6")
+            
+            Public Overridable Function ToHex(upper As Boolean) As String
+                Return ToInteger().ToString(If(upper, "X6", "x6"))
             End Function
             
             Protected Friend Function ToInteger() As Integer

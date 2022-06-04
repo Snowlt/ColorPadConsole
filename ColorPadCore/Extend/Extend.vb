@@ -62,7 +62,11 @@ Namespace Extend
         End Operator
 
         Public Overridable Function ToHex() As String
-            Return Rgb.ToHex()
+            Return Rgb.ToHex(True)
+        End Function
+
+        Public Overridable Function ToHex(upper As Boolean) As String
+            Return Rgb.ToHex(upper)
         End Function
 
         Public Overridable Function GetGray() As Integer
