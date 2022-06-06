@@ -5,7 +5,7 @@ Imports System.Text
 
 Namespace Core
 
-    Module Basic
+    Public Module Basic
         '*
         ' Basic Functions For Conversion And Color Models
         ' 转换和颜色模型所需的基础函数
@@ -191,12 +191,12 @@ Namespace Core
             End Function
 
             Public Overrides Function ToString() As String
-                Return String.Format("RGB: ({0},{1},{2})", R, G, B)
+                Return String.Format("RGB: ({0})", ToString(","))
             End Function
 
             Public Overridable Overloads Function ToString(separator As String) As String _
             Implements IColorModel.ToString
-                Return String.Format("{0}{3}{1}{3}{2}", R, G, B, separator)
+                Return new StringBuilder().Append(R).Append(separator).Append(G).Append(separator).Append(B).ToString()
             End Function
 
             Public Overridable Function CompareWith(r As Integer, g As Integer, b As Integer) As Boolean
@@ -373,13 +373,13 @@ Namespace Core
                 Return H << 16 Or S << 8 Or B
             End Function
 
+            Public Overrides Function ToString() As String
+                Return String.Format("HSB: ({0},{1},{2})", H, S, B)
+            End Function
+
             Public Overloads Function ToString(separator As String) As String _
             Implements IColorModel.ToString
                 Return String.Format("{0:0.##}{3}{1:0.##}{3}{2:0.##}", H, S, B, separator)
-            End Function
-
-            Public Overrides Function ToString() As String
-                Return String.Format("HSB: ({0},{1},{2})", H, S, B)
             End Function
 
             Public Function CompareWith(h As Integer, s As Integer, b As Integer) As Boolean
@@ -620,12 +620,12 @@ Namespace Core
             End Function
 
             Public Overrides Function ToString() As String
-                Return String.Format("CMYK: ({0},{1},{2},{3})", C, M, Y, K)
+                Return String.Format("CMYK: ({0})", ToString(","))
             End Function
 
             Public Overloads Function ToString(separator As String) As String _
             Implements IColorModel.ToString
-                Return String.Format("{0}{4}{1}{4}{2}{4}{3}", C, M, Y, K, separator)
+                Return new StringBuilder().Append(C).Append(separator).Append(M).Append(separator).Append(Y).Append(separator).Append(K).ToString()
             End Function
 
             Public Function CompareWith(c As Integer, m As Integer, y As Integer, k As Integer) As Boolean
@@ -739,12 +739,12 @@ Namespace Core
             End Function
 
             Public Overrides Function ToString() As String
-                Return String.Format("YCrCb: ({0},{1},{2})", Y, Cr, Cb)
+                Return String.Format("YCrCb: ({0})", ToString(","))
             End Function
 
             Public Overloads Function ToString(separator As String) As String _
             Implements IColorModel.ToString
-                Return String.Format("{0}{3}{1}{3}{2}", Y, Cr, Cb, separator)
+                Return new StringBuilder().Append(Y).Append(separator).Append(Cr).Append(separator).Append(Cb).ToString()
             End Function
 
             Public Function CompareWith(y As Integer, cr As Integer, cb As Integer) As Boolean

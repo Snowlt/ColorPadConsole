@@ -3,6 +3,8 @@ Imports ColorPadCore.Core.Model
 Imports ColorPadCore.Extend
 
 Module ConsolePad
+    Private const Separator as String = ","
+
     Dim ReadOnly Version As String = Reflection.Assembly.GetEntryAssembly.GetName.Version.ToString
 
     Sub Main(args As String())
@@ -56,17 +58,17 @@ Module ConsolePad
             Console.ForegroundColor = ConsoleColor.DarkYellow
             Console.WriteLine("    " + bridge.Rgb.ToString())
             Console.WriteLine("    Hex(HTML): #" + bridge.ToHex())
-            Console.WriteLine("    HSB(HSV): " + bridge.Hsb.ToString(","))
-            Console.WriteLine("    " + bridge.Hsl.ToString())
+            Console.WriteLine("    HSB(HSV): ({0})", bridge.Hsb.ToString(Separator))
+            Console.WriteLine("    HSL: ({0})", bridge.Hsl.ToString(Separator))
             Console.WriteLine("    " + bridge.Cmyk.ToString())
             Console.WriteLine("    " + bridge.YCrCb.ToString())
-            Console.WriteLine("    " + bridge.Lab.ToString())
-            Console.WriteLine("    XYZ: ({0:0.000},{1:0.000},{2:0.000})", bridge.Xyz.X, bridge.Xyz.Y, bridge.Xyz.Z)
+            Console.WriteLine("    Lab: ({0})", bridge.Lab.ToString(Separator))
+            Console.WriteLine("    XYZ: ({0})", bridge.Xyz.ToString(Separator))
             Console.ForegroundColor = defaultColor
             Console.WriteLine("--------------------")
             Console.WriteLine(" Color Formula: ")
             'Use lambada to print the results of formula
-            Dim lambadaPrint = Sub(hsb) Console.WriteLine("        " + hsb.ToString())
+            Dim lambadaPrint = Sub(hsb As Hsb) Console.WriteLine("        " + hsb.ToString(Separator))
             Console.ForegroundColor = ConsoleColor.DarkYellow
             For Each type in [Enum].GetValues(GetType(FormulaType))
                 Dim typeName = [Enum].GetName(GetType(FormulaType), type)
