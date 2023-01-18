@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "ColorPadCore", "ColorPadCore\ColorPadCore.vbproj", "{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColorPadCore", "ColorPadCore\ColorPadCore.csproj", "{97DFF061-8AED-04CD-1E5B-C4A2C68D190B}"
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "ConsoleApp", "ConsoleApp\ConsoleApp.vbproj", "{C377FA12-E734-4EA1-941F-C0C6E3F24ECC}"
 EndProject
@@ -13,10 +13,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{25FB710A-46B5-4B3C-9C03-0EDCA41A2DAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97DFF061-8AED-04CD-1E5B-C4A2C68D190B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97DFF061-8AED-04CD-1E5B-C4A2C68D190B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97DFF061-8AED-04CD-1E5B-C4A2C68D190B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97DFF061-8AED-04CD-1E5B-C4A2C68D190B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C377FA12-E734-4EA1-941F-C0C6E3F24ECC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C377FA12-E734-4EA1-941F-C0C6E3F24ECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C377FA12-E734-4EA1-941F-C0C6E3F24ECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
