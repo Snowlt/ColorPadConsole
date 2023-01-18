@@ -604,7 +604,7 @@ Namespace Core
             Public Overrides Function Equals(obj As Object) As Boolean
                 If TypeOf obj IsNot Cmyk Then Return False
                 Dim other As Cmyk = CType(obj, Cmyk)
-                Return _m = other._m AndAlso _m = other._m AndAlso _y = other._y AndAlso _k = other._k
+                Return _c = other._c AndAlso _m = other._m AndAlso _y = other._y AndAlso _k = other._k
             End Function
 
             Public Shared Operator =(left As Cmyk, right As Cmyk) As Boolean
