@@ -1,4 +1,4 @@
-Imports ColorPadCore.Core.Formula
+Imports ColorPadCore.Core
 Imports ColorPadCore.Core.Model
 Imports ColorPadCore.Extend
 
@@ -33,7 +33,7 @@ Module ConsolePad
                 Console.Clear()
                 Continue While
             End If
-            Dim func As Func(Of String, ConvertBridge) = GetConvertBridge(input)
+            Dim func As Func(Of String, IConvertBridge) = GetConvertBridge(input)
             If func Is Nothing Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Unknown command: " + input)
@@ -42,7 +42,7 @@ Module ConsolePad
                 Continue While
             End If
             Console.Write("Please input value of color(separated by ',' if necessary): ")
-            Dim bridge As ConvertBridge
+            Dim bridge As IConvertBridge
             Try
                 bridge = func(Console.ReadLine().Trim())
             Catch ex As ArgumentNullException
@@ -66,7 +66,7 @@ Module ConsolePad
             Console.WriteLine("    XYZ: ({0})", bridge.Xyz.ToString(Separator))
             Console.ForegroundColor = defaultColor
             Console.WriteLine("--------------------")
-            Console.WriteLine(" Color Formula: ")
+            Console.WriteLine(" Color Formula(HSB): ")
             'Use lambada to print the results of formula
             Dim lambadaPrint = Sub(hsb As Hsb) Console.WriteLine("        " + hsb.ToString(Separator))
             Console.ForegroundColor = ConsoleColor.DarkYellow
@@ -74,7 +74,7 @@ Module ConsolePad
                 Dim typeName = [Enum].GetName(GetType(FormulaType), type)
                 If type = FormulaType.SplitComplementary then typeName = "Split Complementary"
                 Console.WriteLine($"    {typeName}: ")
-                Array.ForEach(GetFormula(bridge.Hsb, type), lambadaPrint)
+                Array.ForEach(Formula.GetFormula(bridge.Hsb, type), lambadaPrint)
             Next
             Console.ForegroundColor = defaultColor
             Console.WriteLine("====================")
@@ -82,7 +82,7 @@ Module ConsolePad
         End While
     End Sub
 
-    Private Function GetConvertBridge(type As String) As Func(Of String, ConvertBridge)
+    Private Function GetConvertBridge(type As String) As Func(Of String, IConvertBridge)
         type = type.ToLower
         Select Case type
             Case "rgb"
@@ -102,7 +102,7 @@ Module ConsolePad
             Case "lab"
                 Return Function(s) New NormalConvertBridge(Lab.FromString(s))
             Case "xyz"
-                Return Function(s) New NormalConvertBridge(CieXyzD65.FromString(s))
+                Return Function(s) New NormalConvertBridge(CieXyzHelper.ParseStringOfD65(s))
         End Select
         Return Nothing
     End Function
