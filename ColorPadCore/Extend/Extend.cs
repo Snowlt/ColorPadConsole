@@ -38,8 +38,9 @@ namespace ColorPadCore.Extend
         /// Create Hex / HTML string of RGB
         /// 生成 RGB 的 16进制 / HTML 格式字符串
         /// </summary>
+        /// <param name="upper">Upper case / 大写</param>
         /// <returns>Hex of RGB</returns>
-        string ToHex();
+        string ToHex(bool upper = true);
     }
 
     /// <summary>
@@ -58,7 +59,7 @@ namespace ColorPadCore.Extend
         public Xyz Xyz { get; }
         public Lab Lab { get; }
         public byte Grayscale { get; }
-        public string ToHex() => _rgb.ToHex();
+        public string ToHex(bool upper = true) => _rgb.ToHex(upper);
 
         private NormalConvertBridge(Rgb model, ColorType avoidType)
         {
@@ -207,13 +208,14 @@ namespace ColorPadCore.Extend
                     _xyz = Convert<Rgb, Xyz>(in _rgb);
                     _initXyz = true;
                 }
+
                 _lab = Convert<Xyz, Lab>(Xyz);
                 _initLab = true;
                 return _lab;
             }
         }
 
-        public string ToHex() => _rgb.ToHex();
+        public string ToHex(bool upper = true) => _rgb.ToHex(upper);
 
         public LazyConvertBridge(Rgb model)
         {
@@ -275,24 +277,59 @@ namespace ColorPadCore.Extend
         {
             _rgb = l.Rgb;
             Grayscale = l.Grayscale;
-            if (l._initHsb) { _hsb = l._hsb; _initHsb = true; }
-            if (l._initHsl) { _hsl = l._hsl; _initHsl = true; }
-            if (l._initCmyk) { _cmyk = l._cmyk; _initCmyk = true; }
-            if (l._initYCrCb) { _yCrCb = l._yCrCb; _initYCrCb = true; }
-            if (l._initXyz) { _xyz = l._xyz; _initXyz = true; }
-            if (l._initLab) { _lab = l._lab; _initLab = true; }
+            if (l._initHsb)
+            {
+                _hsb = l._hsb;
+                _initHsb = true;
+            }
+
+            if (l._initHsl)
+            {
+                _hsl = l._hsl;
+                _initHsl = true;
+            }
+
+            if (l._initCmyk)
+            {
+                _cmyk = l._cmyk;
+                _initCmyk = true;
+            }
+
+            if (l._initYCrCb)
+            {
+                _yCrCb = l._yCrCb;
+                _initYCrCb = true;
+            }
+
+            if (l._initXyz)
+            {
+                _xyz = l._xyz;
+                _initXyz = true;
+            }
+
+            if (l._initLab)
+            {
+                _lab = l._lab;
+                _initLab = true;
+            }
         }
 
         public LazyConvertBridge(IConvertBridge bridge)
         {
             _rgb = bridge.Rgb;
             Grayscale = bridge.Grayscale;
-            _hsb = bridge.Hsb; _initHsb = true;
-            _hsl = bridge.Hsl; _initHsl = true;
-            _cmyk = bridge.Cmyk; _initCmyk = true;
-            _yCrCb = bridge.YCrCb; _initYCrCb = true;
-            _xyz = bridge.Xyz; _initXyz = true;
-            _lab = bridge.Lab; _initLab = true;
+            _hsb = bridge.Hsb;
+            _initHsb = true;
+            _hsl = bridge.Hsl;
+            _initHsl = true;
+            _cmyk = bridge.Cmyk;
+            _initCmyk = true;
+            _yCrCb = bridge.YCrCb;
+            _initYCrCb = true;
+            _xyz = bridge.Xyz;
+            _initXyz = true;
+            _lab = bridge.Lab;
+            _initLab = true;
         }
 
         public static LazyConvertBridge FromRgb(int r, int g, int b)

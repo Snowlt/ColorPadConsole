@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 namespace ColorPadCore.Core.Model
@@ -125,9 +124,9 @@ namespace ColorPadCore.Core.Model
         /// 生成 RGB 的 16进制 / HTML 格式字符串
         /// </summary>
         /// <returns>RGB Hex</returns>
-        public string ToHex()
+        public string ToHex(bool upper = true)
         {
-            return ToInteger().ToString("X6");
+            return ToInteger().ToString(upper ? "X6" : "x6");
         }
 
         /// <summary>
