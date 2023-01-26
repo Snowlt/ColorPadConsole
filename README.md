@@ -36,7 +36,9 @@ English version instruction: [README_EN.md](README_EN.md)
 
    在一些场合**配色方案**也被称为“Color scheme”。
 
-   配色方案计算将根据设计中常用的配色方法，计算出其他的颜色色相（HSB中的色相）。
+   配色方案计算将根据设计中常用的配色方法，计算出其他的颜色色相（HSB中的色相）。支持计算：
+
+   > 同类色, 互补色, 分裂互补色, 邻近色, 三角色, 四角色
 
 ## 在其他项目中使用库
 
@@ -44,12 +46,10 @@ English version instruction: [README_EN.md](README_EN.md)
 
 - ColorPadCore (.Net Standard 2.0): 颜色处理、转换的核心库。
 
+  *核心库基于 .Net Standard 2.0，可以直接在大多数 .Net Framework / .Net Core / .Net 项目中直接使用（例如WinForm
+  、控制台程序和WPF）。*
+
 - ColorPadConsole (.Net 6.0): 命令行部分。
-
-### 兼容性
-
-从 2.0 开始核心库已分离到 `ColorPadCore` 模块中（在Visual Studio中称为项目）。 `ColorPadCore` 使用 .Net Standard
-2.0，可以直接在任何类型的 .Net Framework / .Net Core / .Net 项目中使用（例如WinForm 、控制台程序和WPF）。
 
 ### 引入核心库
 
@@ -70,17 +70,152 @@ English version instruction: [README_EN.md](README_EN.md)
 
 函数和类的详细用法请见代码中的 XML 注释文档，或是 Visual Studio 的提示。
 
+### 代码主要用法
+
+#### 创建颜色模型
+
+通用：
+
+```csharp
+// 使用 From 从数字创建
+var rgb = Rgb.From(170, 187, 204);
+var grayscale = Grayscale.From(187);
+var hsb = Hsb.From(210, 16.67, 80);
+var hsl = Hsl.From(210, 25, 73.33);
+var cmyk = Cmyk.From(17, 8, 0, 20);
+var yCrCb = YCrCb.From(184, 119, 139);
+var lab = Lab.From(75.11, -2.29, -10.54);
+var xyz = Xyz.From(0.45247, 0.48446, 0.64093);
+
+// 使用 FromString 从字符串解析(","分割)
+var rgb = Rgb.FromString("170,187,204");
+var grayscale = Grayscale.FromString("187");
+var hsb = Hsb.FromString("210,16.67,80");
+var hsl = Hsl.FromString("210,25,73.33");
+var cmyk = Cmyk.FromString("17,8,0,20");
+var yCrCb = YCrCb.FromString("184,119,139");
+var lab = Lab.FromString("75.11,-2.29,-10.54");
+var xyz = Xyz.FromString("0.45247,0.48446,0.64093");
+```
+
+如果要使用 RGB 的 16 进制（Hex）格式，可以使用以下方法：
+
+```csharp
+// 从 16 进制解析（不区分大小写，"#"可省略，字母和数字的长度必须为6）
+var rgb1 = Rgb.FromHex("#AABBCC");
+var rgb2 = Rgb.FromHex("AabBCc");
+// 从 16 进制解析（同上，但支持 HTML 的 CSS 缩写样式）
+var rgb3 = Rgb.FromHexEnhanced("Abc");
+Console.WriteLine(rgb1.ToString()); // -> RGB: (170,187,204)
+Console.WriteLine(rgb1 == rgb2);    // -> true
+Console.WriteLine(rgb1 == rgb3);    // -> true
+
+// 输出为 16 进制
+Console.WriteLine(rgb3.ToHex());      // -> AABBCC
+Console.WriteLine(rgb3.ToHex(false)); // -> aabbcc
+```
+
+CIE-XYZ 表示一个色彩空间的坐标，故 `Xyz.FromString` 方法不校验数字（X/Y/Z）的有效范围。
+
+但在特定光照条件（白点值）下，X/Y/Z 应该被认为是有取值范围的，可以使用 `CieXyzHelper` 解析检查范围。
+例如在 D65 光照时，X/Y/Z 的范围是：X (0 - 0.95047), Y (0 - 1.0), Z (0 - 1.08883)。
+
+```csharp
+// 以下方法会检查数字的范围： 
+Xyz xyz = CieXyzHelper.ParseStringOfD65("0.95,1.0,1.0");
+try {
+    CieXyzHelper.ParseStringOfD65("1.0,1.0,1.0"); // 抛出异常
+} catch (ArgumentException e) {
+    Console.WriteLine(e);
+}
+```
+
+#### 转换颜色模型
+
+1. 使用 `ModelsManager` 转换
+
+   `ModelsManager` 负责管理类型转换器。可以直接用 `Convert<TSource, TTarget>(TSource)` 方法匹配类型并转换。
+   ```csharp
+   // 1. 源
+   Rgb rgb = Rgb.FromHex("#AABBCC");
+   // 2. 转换并获取结果
+   Hsb hsb = ModelsManager.Convert<Rgb, Hsb>(rgb);
+   Xyz xyz = ModelsManager.Convert<Rgb, Xyz>(rgb);
+   Lab lab = ModelsManager.Convert<Xyz, Lab>(xyz);
+   ```
+
+2. 使用 `IConvertBrige` 实现类转换
+
+   `IConvertBrige` 可以自动将一个类型转换到其他多种类型。默认提供的实现类有：`NormalConvertBridge`, `LazyConvertBridge`
+   ，支持：*Rgb / Hsb / Hsl / Cmyk / YCrCb / Lab / Xyz* 互转。
+
+   内部是借助了 `ModelsManager.Convert` 进行转换。**如果需要一次性转换到多个类型，建议使用 `IConvertBrige`。**
+
+   ```csharp
+   // 1. 源
+   Rgb rgb = Rgb.FromHex("#AABBCC");
+   // 2. 创建 NormalConvertBridge
+   IConvertBridge res = new NormalConvertBridge(rgb);
+   // 3. 获取结果
+   Hsb hsb = res.Hsb;
+   Lab lab = res.Lab;
+   byte grayscale = res.Grayscale; // IConvertBrige 会直接返回 byte 而非 Grayscale 类型
+   ```
+
+3. 自定义转换器
+
+   如果想自定义类型的转换器，只需实现 `IConvertFromTo` 接口，并将实现类注册到 `ModelsManager` 中即可。
+
+   以自定义 `Rgb` 转到 `Hsb` 为例：
+   ```csharp
+   // 1. 定义实现类
+   public class CustomizedHsbConverter: IConvertFromTo<Rgb, Hsb>
+   {
+      public Hsb Convert(in Rgb source)
+      {
+         Hsb hsb;
+         // 实现的代码
+         return hsb;
+      }
+   }
+   // 2. 注册转换器
+   ModelsManager.Register<Rgb, Hsb>(new CustomizedHsbConverter());
+   // 3. 使用
+   ```
+
+#### 计算配色方案
+
+`Formula` 类中提供了主要的配色方案计算方法。也可以使用入口方法：`Formula.GetFormula(Hsb, FormulaType)`
+
+```csharp
+var hsb = Hsb.From(210, 16.67, 80);
+// 计算互补色
+var formulas = Formula.GetFormula(hsb, FormulaType.Complementary);
+// 输出结果
+foreach (var formula in formulas)
+{
+   Console.WriteLine(formula);
+}
+/* Result:
+* HSB: (210,16.67,80)
+* HSB: (30,16.67,80)
+*/
+```
+
+计算类型请见枚举：`FormulaType`
+
 ## 在 3.0 中的重大变更
 
-1. 颜色模型改为只读结构（C# Struct）以改善GC性能
+从 3.0 起，相比旧版本 API 有以下大调整：
+
+1. 颜色模型改为只读结构（C# Struct）以改善GC性能，同时修改了创建方法
 2. 改进算法的代码实现，提高性能
-3. 禁用颜色模型的构造函数，改为用 `From(...)` 方法创建，同时引入了异常抛出
-4. 灰度值（Grayscale）从旧版 RGB 中分离了出来，作为单独的类型
-5. `ModelsManager` 注册的转换器改为只接受 `IConvertFromTo` 接口
-6. 旧版本的 `Core.Formula` 命名空间被移除，合并到 `Core` 中
-7. 旧版本的 `Extend.ConvertBridge` 抽象类替换为 `IConvertBridge` 接口
-8. 移除 HSL 和 HSB 之间的直接转换
-9. 改变 RGB 转 YCrCb 时的取整方式
+3. 灰度值（Grayscale）从 RGB 中分离了出来，作为单独的类型
+4. `ModelsManager` 注册的转换器改为只接受 `IConvertFromTo` 接口
+5. 旧版本的 `Core.Formula` 命名空间被移除，合并到 `Core` 中
+6. 旧版本的 `Extend.ConvertBridge` 抽象类替换为 `IConvertBridge` 接口
+7. 移除 HSL 和 HSB 之间的直接转换
+8. 改变 RGB 转 YCrCb 时的取整方式
 
 ## 技术资料
 
