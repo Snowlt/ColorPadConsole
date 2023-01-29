@@ -126,22 +126,27 @@ namespace ColorPadCore.Extend
     public class LazyConvertBridge : IConvertBridge
     {
         private readonly Rgb _rgb;
+        private byte _gray;
         private Hsb _hsb;
         private Hsl _hsl;
         private Cmyk _cmyk;
         private YCrCb _yCrCb;
         private Xyz _xyz;
         private Lab _lab;
-        private bool _initHsb, _initHsl, _initCmyk, _initYCrCb, _initXyz, _initLab;
-
-        /// <summary>
-        /// 默认的空占位对象
-        /// </summary>
-        public static readonly LazyConvertBridge EmptyBridge = new LazyConvertBridge(Rgb.White);
+        private bool _initGray, _initHsb, _initHsl, _initCmyk, _initYCrCb, _initXyz, _initLab;
 
         public Rgb Rgb => _rgb;
 
-        public byte Grayscale { get; }
+        public byte Grayscale
+        {
+            get
+            {
+                if (_initGray) return _gray;
+                _gray = Convert<Rgb, Grayscale>(in _rgb).Value;
+                _initGray = true;
+                return _gray;
+            }
+        }
 
         public Hsb Hsb
         {
@@ -217,18 +222,13 @@ namespace ColorPadCore.Extend
 
         public string ToHex(bool upper = true) => _rgb.ToHex(upper);
 
-        public LazyConvertBridge(Rgb model)
-        {
-            _rgb = model;
-            Grayscale = GetGray();
-        }
+        public LazyConvertBridge(Rgb model) => _rgb = model;
 
         public LazyConvertBridge(Hsb model)
         {
             _hsb = model;
             _initHsb = true;
             _rgb = Convert<Hsb, Rgb>(in model);
-            Grayscale = GetGray();
         }
 
         public LazyConvertBridge(Hsl model)
@@ -236,7 +236,6 @@ namespace ColorPadCore.Extend
             _hsl = model;
             _initHsl = true;
             _rgb = Convert<Hsl, Rgb>(in model);
-            Grayscale = GetGray();
         }
 
         public LazyConvertBridge(Cmyk model)
@@ -244,7 +243,6 @@ namespace ColorPadCore.Extend
             _cmyk = model;
             _initCmyk = true;
             _rgb = Convert<Cmyk, Rgb>(in model);
-            Grayscale = GetGray();
         }
 
         public LazyConvertBridge(YCrCb model)
@@ -252,7 +250,6 @@ namespace ColorPadCore.Extend
             _yCrCb = model;
             _initYCrCb = true;
             _rgb = Convert<YCrCb, Rgb>(in model);
-            Grayscale = GetGray();
         }
 
         public LazyConvertBridge(Xyz model)
@@ -260,7 +257,6 @@ namespace ColorPadCore.Extend
             _xyz = model;
             _initXyz = true;
             _rgb = Convert<Xyz, Rgb>(in model);
-            Grayscale = GetGray();
         }
 
         public LazyConvertBridge(Lab model)
@@ -270,13 +266,17 @@ namespace ColorPadCore.Extend
             _xyz = Convert<Lab, Xyz>(in model);
             _initXyz = true;
             _rgb = Convert<Xyz, Rgb>(in _xyz);
-            Grayscale = GetGray();
         }
 
         public LazyConvertBridge(LazyConvertBridge l)
         {
             _rgb = l.Rgb;
-            Grayscale = l.Grayscale;
+            if (l._initGray)
+            {
+                _gray = l.Grayscale;
+                _initGray = true;
+            }
+
             if (l._initHsb)
             {
                 _hsb = l._hsb;
@@ -317,7 +317,8 @@ namespace ColorPadCore.Extend
         public LazyConvertBridge(IConvertBridge bridge)
         {
             _rgb = bridge.Rgb;
-            Grayscale = bridge.Grayscale;
+            _gray = bridge.Grayscale;
+            _initGray = true;
             _hsb = bridge.Hsb;
             _initHsb = true;
             _hsl = bridge.Hsl;
@@ -336,7 +337,5 @@ namespace ColorPadCore.Extend
         {
             return new LazyConvertBridge(Rgb.From(r, g, b));
         }
-
-        private byte GetGray() => Convert<Rgb, Grayscale>(in _rgb).Value;
     }
 }
