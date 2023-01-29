@@ -8,7 +8,7 @@ namespace ColorPadCore.Core.Model
      Interfaces Of Color Models
      颜色模型的接口
     */
-    interface IColorModel
+    public interface IColorModel
     {
         /// <summary>
         /// Make a string of Color Model
@@ -989,6 +989,7 @@ namespace ColorPadCore.Core.Model
         public static Xyz FromString(string color)
         {
             double[] xyz = Basic.ExtractFromString(color);
+            if (xyz.Length != 3) throw new ArgumentException();
             return new Xyz(xyz[0], xyz[1], xyz[2]);
         }
     }
