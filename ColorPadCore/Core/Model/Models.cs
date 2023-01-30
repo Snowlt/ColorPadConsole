@@ -74,19 +74,41 @@ namespace ColorPadCore.Core.Model
             B = (byte) (value & 255);
         }
 
-        private int ToInteger()
+        internal Rgb(byte r, byte g, byte b)
         {
-            return R << 16 | G << 8 | B;
+            R = r;
+            G = g;
+            B = b;
         }
 
-        public override int GetHashCode()
+        public bool CompareWith(int r, int g, int b)
         {
-            return ToInteger();
+            return Equals(new Rgb(r, g, b));
+        }
+
+        /// <summary>
+        /// Create Hex / HTML string of RGB
+        /// 生成 RGB 的 16进制 / HTML 格式字符串
+        /// </summary>
+        /// <returns>RGB Hex</returns>
+        public string ToHex(bool upper = true)
+        {
+            return ToInteger().ToString(upper ? "X6" : "x6");
+        }
+
+        public bool Equals(Rgb other)
+        {
+            return R == other.R && G == other.G && B == other.B;
         }
 
         public override bool Equals(object obj)
         {
             return obj is Rgb other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return ToInteger();
         }
 
         public static bool operator ==(Rgb left, Rgb right)
@@ -104,29 +126,18 @@ namespace ColorPadCore.Core.Model
             return $"RGB: ({R},{G},{B})";
         }
 
-        public bool Equals(Rgb other)
-        {
-            return R == other.R && G == other.G && B == other.B;
-        }
-
         public string ToString(string separator)
         {
             return string.Format("{0}{3}{1}{3}{2}", R, G, B, separator);
         }
 
-        public bool CompareWith(int r, int g, int b)
-        {
-            return Equals(new Rgb(r, g, b));
-        }
-
         /// <summary>
-        /// Create Hex / HTML string of RGB
-        /// 生成 RGB 的 16进制 / HTML 格式字符串
+        /// Get the integer value of RGB, equals to decimal value of hex()
         /// </summary>
-        /// <returns>RGB Hex</returns>
-        public string ToHex(bool upper = true)
+        /// <returns>Integer value</returns>
+        private int ToInteger()
         {
-            return ToInteger().ToString(upper ? "X6" : "x6");
+            return R << 16 | G << 8 | B;
         }
 
         /// <summary>
@@ -234,19 +245,23 @@ namespace ColorPadCore.Core.Model
         /// <returns></returns>
         public byte Value { get; }
 
-        private Grayscale(int g)
-        {
-            Value = (byte) g;
-        }
+        private Grayscale(int g) => Value = (byte) g;
 
-        public override int GetHashCode()
+        public Rgb ToRgb() => new Rgb(Value, Value, Value);
+
+        public bool Equals(Grayscale other)
         {
-            return Value;
+            return Value == other.Value;
         }
 
         public override bool Equals(object obj)
         {
             return obj is Grayscale other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
         }
 
         public static bool operator ==(Grayscale left, Grayscale right)
@@ -264,19 +279,9 @@ namespace ColorPadCore.Core.Model
             return $"Grayscale: {Value}";
         }
 
-        public bool Equals(Grayscale other)
-        {
-            return Value == other.Value;
-        }
-
         public string ToString(string separator)
         {
             return Value.ToString();
-        }
-
-        public Rgb ToRgb()
-        {
-            return Rgb.From(Value, Value, Value);
         }
 
         /// <summary>
@@ -344,14 +349,31 @@ namespace ColorPadCore.Core.Model
             B = b;
         }
 
-        public override int GetHashCode()
+        public bool CompareWith(double h, double s, double b)
         {
-            return (int) ((long) Math.Round(H) << 16 | (long) Math.Round(S) << 8 | (long) Math.Round(B));
+            return Equals(new Hsb(h, s, b));
+        }
+
+        public bool Equals(Hsb other)
+        {
+            return Basic.DecimalEquals(H, other.H) && Basic.DecimalEquals(S, other.S) &&
+                   Basic.DecimalEquals(B, other.B);
         }
 
         public override bool Equals(object obj)
         {
             return obj is Hsb other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = H.GetHashCode();
+                hashCode = (hashCode * 397) ^ S.GetHashCode();
+                hashCode = (hashCode * 397) ^ B.GetHashCode();
+                return hashCode;
+            }
         }
 
         public static bool operator ==(Hsb left, Hsb right)
@@ -369,22 +391,10 @@ namespace ColorPadCore.Core.Model
             return $"HSB: ({ToString(",")})";
         }
 
-        public bool Equals(Hsb other)
-        {
-            return Basic.DecimalEquals(H, other.H) && Basic.DecimalEquals(S, other.S) &&
-                   Basic.DecimalEquals(B, other.B);
-        }
-
         public string ToString(string separator)
         {
             return string.Format("{0:0.##}{3}{1:0.##}{3}{2:0.##}", H, S, B, separator);
         }
-
-        public bool CompareWith(double h, double s, double b)
-        {
-            return Equals(new Hsb(h, s, b));
-        }
-
 
         /// <summary>
         /// Create the HSB / HSV model
@@ -461,14 +471,31 @@ namespace ColorPadCore.Core.Model
             L = l;
         }
 
-        public override int GetHashCode()
+        public bool CompareWith(double h, double s, double l)
         {
-            return (int) ((long) Math.Round(H) << 16 | (long) Math.Round(S) << 8 | (long) Math.Round(L));
+            return Equals(new Hsl(h, s, l));
+        }
+
+        public bool Equals(Hsl other)
+        {
+            return Basic.DecimalEquals(H, other.H) && Basic.DecimalEquals(S, other.S) &&
+                   Basic.DecimalEquals(L, other.L);
         }
 
         public override bool Equals(object obj)
         {
             return obj is Hsl other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = H.GetHashCode();
+                hashCode = (hashCode * 397) ^ S.GetHashCode();
+                hashCode = (hashCode * 397) ^ L.GetHashCode();
+                return hashCode;
+            }
         }
 
         public static bool operator ==(Hsl left, Hsl right)
@@ -486,22 +513,10 @@ namespace ColorPadCore.Core.Model
             return $"HSL: ({ToString(",")})";
         }
 
-        public bool Equals(Hsl other)
-        {
-            return Basic.DecimalEquals(H, other.H) && Basic.DecimalEquals(S, other.S) &&
-                   Basic.DecimalEquals(L, other.L);
-        }
-
         public string ToString(string separator)
         {
             return string.Format("{0:0.##}{3}{1:0.##}{3}{2:0.##}", H, S, L, separator);
         }
-
-        public bool CompareWith(double h, double s, double l)
-        {
-            return Equals(new Hsl(h, s, l));
-        }
-
 
         /// <summary>
         /// Create the HSL model
@@ -585,14 +600,24 @@ namespace ColorPadCore.Core.Model
             K = (byte) k;
         }
 
-        public override int GetHashCode()
+        public bool CompareWith(int c, int m, int y, int k)
         {
-            return C << 24 | M << 16 | Y << 8 | K;
+            return Equals(new Cmyk(c, m, y, k));
+        }
+
+        public bool Equals(Cmyk other)
+        {
+            return C == other.C && M == other.M && Y == other.Y && K == other.K;
         }
 
         public override bool Equals(object obj)
         {
             return obj is Cmyk other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return C << 24 | M << 16 | Y << 8 | K;
         }
 
         public static bool operator ==(Cmyk left, Cmyk right)
@@ -610,19 +635,9 @@ namespace ColorPadCore.Core.Model
             return $"CMYK: ({C},{M},{Y},{K})";
         }
 
-        public bool Equals(Cmyk other)
-        {
-            return C == other.C && M == other.M && Y == other.Y && K == other.K;
-        }
-
         public string ToString(string separator)
         {
             return string.Format("{0}{4}{1}{4}{2}{4}{3}", C, M, Y, K, separator);
-        }
-
-        public bool CompareWith(int c, int m, int y, int k)
-        {
-            return Equals(new Cmyk(c, m, y, k));
         }
 
         /// <summary>
@@ -694,14 +709,24 @@ namespace ColorPadCore.Core.Model
             Cb = (byte) b;
         }
 
-        public override int GetHashCode()
+        public bool CompareWith(int y, int cr, int cb)
         {
-            return Y << 16 | Cr << 8 | Cb;
+            return Equals(new YCrCb(y, cr, cb));
+        }
+
+        public bool Equals(YCrCb other)
+        {
+            return Y == other.Y && Cr == other.Cr && Cb == other.Cb;
         }
 
         public override bool Equals(object obj)
         {
             return obj is YCrCb other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Y << 16 | Cr << 8 | Cb;
         }
 
         public static bool operator ==(YCrCb left, YCrCb right)
@@ -719,19 +744,9 @@ namespace ColorPadCore.Core.Model
             return $"YCrCb: ({Y},{Cr},{Cb})";
         }
 
-        public bool Equals(YCrCb other)
-        {
-            return Y == other.Y && Cr == other.Cr && Cb == other.Cb;
-        }
-
         public string ToString(string separator)
         {
             return string.Format("{0}{3}{1}{3}{2}", Y, Cr, Cb, separator);
-        }
-
-        public bool CompareWith(int y, int cr, int cb)
-        {
-            return Equals(new YCrCb(y, cr, cb));
         }
 
         /// <summary>
@@ -803,14 +818,31 @@ namespace ColorPadCore.Core.Model
             B = b;
         }
 
-        public override int GetHashCode()
+        public bool Equals(Lab other)
         {
-            return (int) L << 16 | (int) A + 128 << 8 | (int) B + 128;
+            return Basic.DecimalEquals(L, other.L) && Basic.DecimalEquals(A, other.A) &&
+                   Basic.DecimalEquals(B, other.B);
+        }
+
+        public bool CompareWith(int l, int a, int b)
+        {
+            return Equals(new Lab(l, a, b));
         }
 
         public override bool Equals(object obj)
         {
             return obj is Lab other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = L.GetHashCode();
+                hashCode = (hashCode * 397) ^ A.GetHashCode();
+                hashCode = (hashCode * 397) ^ B.GetHashCode();
+                return hashCode;
+            }
         }
 
         public static bool operator ==(Lab left, Lab right)
@@ -828,20 +860,9 @@ namespace ColorPadCore.Core.Model
             return $"CIE-Lab: ({ToString(",")})";
         }
 
-        public bool Equals(Lab other)
-        {
-            return Basic.DecimalEquals(L, other.L) && Basic.DecimalEquals(A, other.A) &&
-                   Basic.DecimalEquals(B, other.B);
-        }
-
         public string ToString(string separator)
         {
             return string.Format("{0:0.##}{3}{1:0.##}{3}{2:0.##}", L, A, B, separator);
-        }
-
-        public bool CompareWith(int l, int a, int b)
-        {
-            return Equals(new Lab(l, a, b));
         }
 
         /// <summary>
@@ -919,6 +940,22 @@ namespace ColorPadCore.Core.Model
             Z = z;
         }
 
+        public bool CompareWith(double x, double y, double z)
+        {
+            return Equals(new Xyz(x, y, z));
+        }
+
+        public bool Equals(Xyz other)
+        {
+            return Basic.DecimalEquals(X, other.X) && Basic.DecimalEquals(Y, other.Y) &&
+                   Basic.DecimalEquals(Z, other.Z);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Xyz other && Equals(other);
+        }
+
         public override int GetHashCode()
         {
             unchecked
@@ -928,11 +965,6 @@ namespace ColorPadCore.Core.Model
                 hashCode = (hashCode * 397) ^ Z.GetHashCode();
                 return hashCode;
             }
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Xyz other && Equals(other);
         }
 
         public static bool operator ==(Xyz left, Xyz right)
@@ -950,20 +982,9 @@ namespace ColorPadCore.Core.Model
             return $"CIE-XYZ: ({ToString(",")})";
         }
 
-        public bool Equals(Xyz other)
-        {
-            return Basic.DecimalEquals(X, other.X) && Basic.DecimalEquals(Y, other.Y) &&
-                   Basic.DecimalEquals(Z, other.Z);
-        }
-
         public string ToString(string separator)
         {
             return string.Format("{0:0.#####}{3}{1:0.#####}{3}{2:0.#####}", X, Y, Z, separator);
-        }
-
-        public bool CompareWith(double x, double y, double z)
-        {
-            return Equals(new Xyz(x, y, z));
         }
 
         /// <summary>
