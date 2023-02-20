@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Text;
 
 namespace ColorPadCore.Core.Model
 {
@@ -172,21 +171,29 @@ namespace ColorPadCore.Core.Model
 
         /// <summary>
         /// Parse out the RGB value from a Hex string
+        /// <para>Support incomplete Hex and CSS style if disable strict mode</para>
         /// 从一个 Hex 字符串中解析出 RGB 值
+        /// <para>禁用严格模式时支持不完整的 Hex 和 CSS 样式，启用则只能使用长度为 6 的 Hex</para>
         /// </summary>
         /// <param name="color">String of Hex / Hex 字符串</param>
+        /// <param name="strict">Enable strict mode / 启用严格模式</param>
         /// <returns>RGB</returns>
         /// <exception cref="ArgumentException">Unable to parse / 无法解析</exception>
-        public static Rgb FromHex(string color)
+        public static Rgb FromHex(string color, bool strict = false)
         {
             if (string.IsNullOrEmpty(color)) throw new ArgumentException();
-            // 处理并分割字符串
             if (color[0] == '#') color = color.Substring(1);
-            // 检查格式
-            if (color.Length != 6) throw new ArgumentException();
+            // 检查格式 严格模式长度必须为6位
+            if (color.Length > 6 || (strict && color.Length != 6)) throw new ArgumentException();
             try
             {
-                return new Rgb(int.Parse(color, NumberStyles.HexNumber));
+                var value = int.Parse(color, NumberStyles.AllowHexSpecifier);
+                if (color.Length != 3) return new Rgb(value);
+                // CSS样式
+                var r = (value & 0xF00) >> 8;
+                var g = value & 0xF0;
+                var b = value & 0xF;
+                return new Rgb(r << 4 | r, g | g >> 4, b << 4 | b);
             }
             catch (Exception)
             {
@@ -201,29 +208,8 @@ namespace ColorPadCore.Core.Model
         /// <param name="color">String of Hex / Hex 字符串</param>
         /// <returns>RGB</returns>
         /// <exception cref="ArgumentException">Unable to parse / 无法解析</exception>
-        public static Rgb FromHexEnhanced(string color)
-        {
-            if (string.IsNullOrEmpty(color)) throw new ArgumentException();
-            // 处理并分割字符串
-            if (color[0] == '#') color = color.Substring(1);
-            // 检查格式
-            if (color.Length > 6) throw new ArgumentException();
-            if (color.Length == 3)
-            {
-                // CSS样式
-                color = new StringBuilder().Append(color[0]).Append(color[0]).Append(color[1]).Append(color[1])
-                    .Append(color[2]).Append(color[2]).ToString();
-            }
-
-            try
-            {
-                return new Rgb(int.Parse(color, NumberStyles.HexNumber));
-            }
-            catch (Exception)
-            {
-                throw new ArgumentException();
-            }
-        }
+        [Obsolete("Use FromHex() instead")]
+        public static Rgb FromHexEnhanced(string color) => FromHex(color);
 
         private static void CheckRange(int r, int g, int b)
         {
