@@ -14,10 +14,10 @@ namespace ColorPadCore.Core
     /// </summary>
     public static class ModelsManager
     {
-        private static readonly Dictionary<Type, object> RegisteredConvertors = new Dictionary<Type, object>();
+        private static readonly Dictionary<Type, object> RegisteredConverters = new Dictionary<Type, object>();
 
         /// <summary>
-        /// Register a convert method (convertor) to convert from one color model to another
+        /// Register a convert method (converter) to convert from one color model to another
         /// 注册一个转换方法(转换器)，用于将一个颜色模型转换为另一个颜色模型
         /// </summary>
         /// <typeparam name="TSource">Source type / 源类型</typeparam>
@@ -27,8 +27,8 @@ namespace ColorPadCore.Core
         {
             if (convertMethod is null)
                 throw new ArgumentNullException(nameof(convertMethod));
-            lock (RegisteredConvertors)
-                RegisteredConvertors[typeof(IConvertFromTo<TSource, TTarget>)] = convertMethod;
+            lock (RegisteredConverters)
+                RegisteredConverters[typeof(IConvertFromTo<TSource, TTarget>)] = convertMethod;
         }
 
         /// <summary>
@@ -39,18 +39,18 @@ namespace ColorPadCore.Core
         /// <typeparam name="TTarget">Target type / 目标类型</typeparam>
         /// <param name="source">Source / 源</param>
         /// <returns>Color model after converted / 转换后的颜色模型</returns>
-        /// <exception cref="ArgumentException">Throw when no suitable convertor found / 没有找到可用的转换器时抛出</exception>
+        /// <exception cref="ArgumentException">Throw when no suitable converter found / 没有找到可用的转换器时抛出</exception>
         public static TTarget Convert<TSource, TTarget>(in TSource source)
         {
             try
             {
-                var convertor =
-                    (IConvertFromTo<TSource, TTarget>) RegisteredConvertors[typeof(IConvertFromTo<TSource, TTarget>)];
-                return convertor.Convert(in source);
+                var converter =
+                    (IConvertFromTo<TSource, TTarget>) RegisteredConverters[typeof(IConvertFromTo<TSource, TTarget>)];
+                return converter.Convert(in source);
             }
             catch (KeyNotFoundException)
             {
-                throw new ArgumentException($"No Convertor found for from {typeof(TSource)} to {typeof(TTarget)}");
+                throw new ArgumentException($"No Converter found for from {typeof(TSource)} to {typeof(TTarget)}");
             }
         }
 
@@ -63,7 +63,7 @@ namespace ColorPadCore.Core
         /// <returns>true if possible / 能转换返回 true</returns>
         public static bool IsConvertable<TSource, TTarget>()
         {
-            return RegisteredConvertors.ContainsKey(typeof(IConvertFromTo<TSource, TTarget>));
+            return RegisteredConverters.ContainsKey(typeof(IConvertFromTo<TSource, TTarget>));
         }
 
         static ModelsManager()
